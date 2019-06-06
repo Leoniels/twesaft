@@ -30,7 +30,7 @@ detect(const Mat &im,
   Mat gray; if(im.channels()==1)gray = im; else cvtColor(im,gray,COLOR_RGB2GRAY);
 
   //detect faces
-  vector<Rect> faces; Mat eqIm; equalizeHist(gray,eqIm);
+  vector<Rect> faces; Mat eqIm; /*equalizeHist*/clahe->apply(gray,eqIm);
   detector.detectMultiScale(eqIm,faces,scaleFactor,minNeighbours,0
                 |CASCADE_FIND_BIGGEST_OBJECT
                 |CASCADE_SCALE_IMAGE,minSize);
@@ -63,7 +63,7 @@ train(ft_data &data,
     Mat im = data.get_image(i,0); if(im.empty())continue;
     vector<Point2f> p = data.get_points(i,false); int n = p.size();
     Mat pt = Mat(p).reshape(1,2*n);
-    vector<Rect> faces; Mat eqIm; equalizeHist(im,eqIm);
+    vector<Rect> faces; Mat eqIm; /*equalizeHist*/clahe->apply(im,eqIm);
     detector.detectMultiScale(eqIm,faces,scaleFactor,minNeighbours,0
                   |CASCADE_FIND_BIGGEST_OBJECT
                   |CASCADE_SCALE_IMAGE,minSize);
@@ -86,7 +86,7 @@ train(ft_data &data,
       im = data.get_image(i,1); if(im.empty())continue;
       p = data.get_points(i,true);
       pt = Mat(p).reshape(1,2*n);
-      equalizeHist(im,eqIm);
+      /*equalizeHist*/clahe->apply(im,eqIm);
       detector.detectMultiScale(eqIm,faces,scaleFactor,minNeighbours,0
                   |CASCADE_FIND_BIGGEST_OBJECT
                 |CASCADE_SCALE_IMAGE,minSize);

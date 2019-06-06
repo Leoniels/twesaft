@@ -53,13 +53,14 @@ Mini tutorial:
 1. Create "annotations.yaml":
 ---------
 Usage: 
-> ./annotate [-v video] [-m muct_dir] [-d output_dir]
+> ./annotate [-v video] [-m muct_dir [ -p points ] ] [-d output_dir]
 - video: video containing frames to annotate.
 - muct_dir: directory containing "muct-landmarks/muct76-opencv.csv",  the pre-annotated MUCT dataset (http://www.milbo.org/muct/).
+- points: Specific points annotations to take from the muct landmarks use a coma separated format (ej: 37,38, ...,47 )
 - output_dir: contains the annotation file and annotated images (if using -v) 
 Example:
 > mkdir muct 
-> ./annotate -m ${MY_MUCT_DIR}/ -d muct/
+> ./annotate -m ${MY_MUCT_DIR}/ -p 37,38,39,40,41,42,43,44,45,46,47,67 -d muct/
 
 2. Visualise annotations:
 ----------

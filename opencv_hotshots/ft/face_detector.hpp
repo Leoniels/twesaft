@@ -23,6 +23,9 @@ public:
   Vec3f detector_offset;                   //offset from center of detection
   Mat reference;                           //reference shape
   CascadeClassifier detector;              //face detector
+  Ptr<CLAHE> clahe;
+
+  face_detector(){ clahe = createCLAHE();}
 
   vector<Point2f>                          //points for detected face in image
   detect(const Mat &im,                    //image containing face
