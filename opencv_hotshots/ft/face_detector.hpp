@@ -25,7 +25,7 @@ public:
   CascadeClassifier detector;              //face detector
   Ptr<CLAHE> clahe;
 
-  face_detector(){ clahe = createCLAHE();}
+  face_detector(){ clahe = createCLAHE(2.0);} //adaptative equalization
 
   vector<Point2f>                          //points for detected face in image
   detect(const Mat &im,                    //image containing face

@@ -152,7 +152,10 @@ Example:
 10. Test face tracker:
 ----------
 Usage:
-> ./visualise_face_tracker tracker [video_file]
+> ./visualise_face_tracker [-o] [-m] [-p point] tracker [video_file]
+- o: Write video output with simbology as "out.avi"
+- m: Monitor time invested in tracking writing a file "proctime" with the results
+- p point: Writes to stdout the location of the feature point tracked.
 - tracker: generated using "train_face_tracker"
 - video_file: Optional video to test tracker on. Default is to use webcam
 Example:

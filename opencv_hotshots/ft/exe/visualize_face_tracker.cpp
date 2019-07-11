@@ -48,15 +48,19 @@ int main(int argc,char** argv)
   int argoffset = 0;
   int pt2track = -1;
   ofstream proctimefile;
+  bool writeVid = false;
   for(int i=1; i<argc; i++){
-	string str = argv[i];
-	if(strcmp(str.c_str(),"-m") == 0){
-		proctimefile.open("proctime", ios::trunc);
-		argoffset++;
-	} else if (strcmp(str.c_str(),"-p") == 0){
-		pt2track = atoi(argv[i+1]);
-		argoffset += 2;
-	}
+    string str = argv[i];
+    if(strcmp(str.c_str(),"-m") == 0){
+      proctimefile.open("proctime", ios::trunc);
+      argoffset++;
+    }else if(strcmp(str.c_str(),"-p") == 0){
+      pt2track = atoi(argv[i+1]);
+      argoffset += 2;
+    }else if(strcmp(str.c_str(),"-o") == 0){
+      writeVid = true;
+      argoffset++;
+    }
   }
   
   //load detector model
@@ -76,29 +80,49 @@ int main(int argc,char** argv)
     cerr << "Failed opening video file." << endl
      << usage << endl; return 0;
   }
+
+  //open video output
+  VideoWriter outputVideo;
+  if(writeVid){
+    int codec = VideoWriter::fourcc('X','V','I','D');
+	outputVideo.open("out.avi",codec,static_cast<int>(cam.get(CAP_PROP_FPS)),
+	                 Size(static_cast<int>(cam.get(CAP_PROP_FRAME_WIDTH)),
+						  static_cast<int>(cam.get(CAP_PROP_FRAME_HEIGHT))));
+	if(!outputVideo.isOpened()){
+		cerr << "ERROR OPENING OUTPUT VIDEO WRITER" << endl;
+		return 1;
+	}
+  }
+
   int64 processingTime = getTickCount();
   //detect until user quits
   namedWindow("face tracker");
-  while(cam.get(CAP_PROP_POS_AVI_RATIO) < 0.999999){
-    Mat im; cam >> im; 
+  Mat im; 
+  while(cam.read(im)){
 	int64 tp0 = getTickCount();
 	int res = tracker.track(im, p);
 	processingTime = getTickCount()-tp0;
+
     if(res)tracker.draw(im);
+	if(writeVid)outputVideo << im;
     draw_string(im,"d - redetection");
     tracker.timer.display_fps(im,Point(1,im.rows-1));
     imshow("face tracker",im);
-    int c = waitKey(10);
+
 	if(proctimefile.is_open())
-		proctimefile <<
-		cv::format("%.4f", (double)(processingTime)*1000.0f/getTickFrequency())
-		<< endl;
+      proctimefile <<
+        cv::format("%.4f", (double)(processingTime)*1000.0f/getTickFrequency())
+      << endl;
 	if(pt2track >= 0)
-		cout << (int)(tracker.points[pt2track].x) << ", " << (int)(tracker.points[pt2track].y) << endl;
+      cout << (int)(tracker.points[pt2track].x) << ", "
+		<< (int)(tracker.points[pt2track].y) << endl;
+
+    int c = waitKey(10);
     if(c == 'q')break;
     else if(c == 'd')tracker.reset();
   }
   destroyWindow("face tracker"); cam.release(); 
-  if(proctimefile.is_open())proctimefile.close(); return 0;
+  if(proctimefile.is_open())proctimefile.close();
+  if(writeVid)outputVideo.release(); return 0;
 }
 //==============================================================================
