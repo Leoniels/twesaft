@@ -32,7 +32,7 @@ face_tracker_params()
   ssize.resize(3); 
   ssize[0] = Size(21,21); ssize[1] = Size(11,11); ssize[2] = Size(5,5);
   robust = false; itol = 20; ftol = 1e-3;
-  scaleFactor = 1.1; minNeighbours = 2; minSize = Size(30,30);
+  scaleFactor = 1.15; minNeighbours = 2; minSize = Size(100,150);
 }
 //==============================================================================
 void 

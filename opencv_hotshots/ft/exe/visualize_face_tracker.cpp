@@ -95,8 +95,8 @@ int main(int argc,char** argv)
   int64 processingTime = getTickCount();
   //detect until user quits
   namedWindow("face tracker");
-  while(cam.get(CAP_PROP_POS_AVI_RATIO) < 0.999999){
-    Mat im; cam >> im; 
+  Mat im;
+  while(cam.read(im)/*cam.get(CAP_PROP_POS_AVI_RATIO) < 0.999999*/){
 	int64 tp0 = getTickCount();
 	int res = tracker.track(im, p);
 	processingTime = getTickCount()-tp0;
