@@ -47,6 +47,7 @@ int main(int argc,char** argv)
   if(argc < 2){cout << usage << endl; return 0;}
   int argoffset = 0;
   int pt2track = -1;
+  int pts2track[3] = {-1,-1,-1};
   ofstream proctimefile;
   bool writeVid = false;
   for(int i=1; i<argc; i++){
@@ -57,6 +58,11 @@ int main(int argc,char** argv)
     }else if(strcmp(str.c_str(),"-p") == 0){
       pt2track = atoi(argv[i+1]);
       argoffset += 2;
+    }else if(strcmp(str.c_str(),"-p3") == 0){
+      pts2track[0] = atoi(argv[i+1]);//right eye
+	  pts2track[1] = atoi(argv[i+2]);//left eye
+	  pts2track[2] = atoi(argv[i+3]);//nose
+      argoffset += 4;
     }else if(strcmp(str.c_str(),"-o") == 0){
       writeVid = true;
       argoffset++;
@@ -113,7 +119,14 @@ int main(int argc,char** argv)
       proctimefile <<
         cv::format("%.4f", (double)(processingTime)*1000.0f/getTickFrequency())
       << endl;
-	if(pt2track >= 0)
+	if(pts2track[0] > -1)
+      cout << (int)(tracker.points[pts2track[0]].x) << ", "
+		<< (int)(tracker.points[pts2track[0]].y) << ", "
+		<< (int)(tracker.points[pts2track[1]].x) << ", "
+		<< (int)(tracker.points[pts2track[1]].y) << ", "
+		<< (int)(tracker.points[pts2track[2]].x) << ", "
+		<< (int)(tracker.points[pts2track[2]].y) << endl;
+	else if(pt2track >= 0)
       cout << (int)(tracker.points[pt2track].x) << ", "
 		<< (int)(tracker.points[pt2track].y) << endl;
 
@@ -121,6 +134,8 @@ int main(int argc,char** argv)
     if(c == 'q')break;
     else if(c == 'd')tracker.reset();
   }
+  if(pts2track[0] > -1)
+	  cout << endl << "-1" << endl;
   destroyWindow("face tracker"); cam.release(); 
   if(proctimefile.is_open())proctimefile.close();
   if(writeVid)outputVideo.release(); return 0;
