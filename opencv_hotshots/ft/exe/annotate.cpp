@@ -14,6 +14,7 @@
 */
 #include "opencv_hotshots/ft/ft.hpp"
 #include <opencv2/highgui/highgui.hpp>
+#include <unordered_set>
 #include <iostream>
 #include <fstream>
 //==============================================================================
@@ -227,7 +228,8 @@ public:
   vector<Point2f> points;
 
   muct_data(string str,
-        string muct_dir){
+        string muct_dir,
+		std::unordered_set<unsigned short>* pointset){
     size_t p1 = 0,p2;
     
     //set image directory
@@ -250,20 +252,22 @@ public:
       index = str.substr(p1,p2-p1); p1 = p2+1;
       
       //get points
-      for(int i = 0; i < 75; i++){
+      for(unsigned short i = 0; i < 75; i++){
     p2 = str.find(",",p1);
     if(p2 == string::npos){cerr << "Invalid MUCT file" << endl; exit(0);}
     string x = str.substr(p1,p2-p1); p1 = p2+1;
     p2 = str.find(",",p1);
     if(p2 == string::npos){cerr << "Invalid MUCT file" << endl; exit(0);}
     string y = str.substr(p1,p2-p1); p1 = p2+1;
-    points.push_back(Point2f(atoi(x.c_str()),atoi(y.c_str())));
+	if(pointset->empty() || pointset->count(i))
+	    points.push_back(Point2f(atoi(x.c_str()),atoi(y.c_str())));
       }
       p2 = str.find(",",p1);
       if(p2 == string::npos){cerr << "Invalid MUCT file" << endl; exit(0);}
       string x = str.substr(p1,p2-p1); p1 = p2+1;
       string y = str.substr(p1,str.length()-p1);
-      points.push_back(Point2f(atoi(x.c_str()),atoi(y.c_str())));
+	  if(pointset->empty() || pointset->count(75))
+	      points.push_back(Point2f(atoi(x.c_str()),atoi(y.c_str())));
     }
   }
 };
@@ -296,11 +300,24 @@ parse_odir(int argc,char** argv)
 int 
 parse_ifile(int argc,
         char** argv,
-        string& ifile)
+        string& ifile,
+		std::unordered_set<unsigned short>* pointset)
 {
   for(int i = 1; i < argc; i++){
     string str = argv[i];
     if(str.length() != 2)continue;
+	if(strcmp(str.c_str(),"-p") == 0){ //Specific points
+		i++;
+		str = argv[i];
+		size_t p1 = 0, p2;
+		p2 = str.find(",");	
+		while(p2 < str.length()){
+			pointset->emplace(atoi(str.substr(p1, p2).c_str()));
+			p1 = p2+1;
+			p2 = str.find(",", p1);
+		}
+		pointset->emplace(atoi(str.substr(p1, str.length()-p1).c_str()));
+	}
     if(strcmp(str.c_str(),"-m") == 0){ //MUCT data
       if(argc > i+1){ifile = argv[i+1]; return 2;}
     }
@@ -315,12 +332,14 @@ int main(int argc,char** argv)
 {
   //parse cmd line options
   if(parse_help(argc,argv)){
-    cout << "usage: ./annotate [-v video] [-m muct_dir] [-d output_dir]" 
+    cout << "usage: ./annotate [-v video] [-m muct_dir [ -p points ] ] [-d output_dir]" 
      << endl; return 0;
   }
+  std::unordered_set<unsigned short> pointset;
   string odir = parse_odir(argc,argv);
-  string ifile; int type = parse_ifile(argc,argv,ifile);
+  string ifile; int type = parse_ifile(argc,argv,ifile,&pointset);
   string fname = odir + "annotations.yaml"; //file to save annotation data to
+  std::cout << odir << std::endl;
 
   //get data
   namedWindow(annotation.wname);  
@@ -333,7 +352,7 @@ int main(int argc,char** argv)
     string str; getline(file,str);
     while(!file.eof()){
       getline(file,str); if(str.length() == 0)break;
-      muct_data d(str,ifile); if(d.name.length() == 0)continue;
+      muct_data d(str,ifile,&pointset); if(d.name.length() == 0)continue;
       annotation.data.imnames.push_back(d.name);
       annotation.data.points.push_back(d.points);
     }

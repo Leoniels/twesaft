@@ -1,10 +1,10 @@
 %YAML:1.0
 ---
 ft object:
-   fname: "cascades/haarcascade_frontalface_default.xml"
-   x offset: -2.3416422773152590e-03
-   y offset: 7.5375273823738098e-02
-   z offset: 2.5890288352966309e+00
+   fname: "../simplefacetracker/cascades/haarcascade_frontalface_default.xml"
+   x offset: -2.2118666674941778e-03
+   y offset: 7.4297569692134857e-02
+   z offset: 2.5346093177795410e+00
    reference: !!opencv-matrix
       rows: 152
       cols: 1

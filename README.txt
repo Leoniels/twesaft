@@ -3,6 +3,7 @@
 ******************************************************************************
 *   by Jason Saragih, 5th Dec 2012
 *   http://jsaragih.org/
+*   Modified version by Leonardo Niels Pardi, Jun 2019
 ******************************************************************************
 *   Ch6 of the book "Mastering OpenCV with Practical Computer Vision Projects"
 *   Copyright Packt Publishing 2012.
@@ -53,13 +54,14 @@ Mini tutorial:
 1. Create "annotations.yaml":
 ---------
 Usage: 
-> ./annotate [-v video] [-m muct_dir] [-d output_dir]
+> ./annotate [-v video] [-m muct_dir [ -p points ] ] [-d output_dir]
 - video: video containing frames to annotate.
 - muct_dir: directory containing "muct-landmarks/muct76-opencv.csv",  the pre-annotated MUCT dataset (http://www.milbo.org/muct/).
+- points: Specific points annotations to take from the muct landmarks use a coma separated format (ej: 37,38, ...,47 )
 - output_dir: contains the annotation file and annotated images (if using -v) 
 Example:
 > mkdir muct 
-> ./annotate -m ${MY_MUCT_DIR}/ -d muct/
+> ./annotate -m ${MY_MUCT_DIR}/ -p 37,38,39,40,41,42,43,44,45,46,47,67 -d muct/
 
 2. Visualise annotations:
 ----------
@@ -151,7 +153,10 @@ Example:
 10. Test face tracker:
 ----------
 Usage:
-> ./visualise_face_tracker tracker [video_file]
+> ./visualise_face_tracker [-o] [-m] [-p point] tracker [video_file]
+- o: Write video output with simbology as "out.avi"
+- m: Monitor time invested in tracking writing a file "proctime" with the results
+- p point: Writes to stdout the location of the feature point tracked.
 - tracker: generated using "train_face_tracker"
 - video_file: Optional video to test tracker on. Default is to use webcam
 Example:
